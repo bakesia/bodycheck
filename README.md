@@ -1,16 +1,40 @@
-# React + Vite
+# BodyCheck AI
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+> **AI 기반 개인 체형 분석 및 코디 추천 서비스**
 
-Currently, two official plugins are available:
+사용자의 체형 분석과 스타일 무드 인식을 통해 최적의 코디를 제안하는 스마트 패션 추천 AI
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+---
 
-## React Compiler
+## 기술 스택
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+### Frontend
 
-## Expanding the ESLint configuration
+- **Framework**: React (Vite)
+- **Styling**: Tailwind CSS
+- **State Management**: Zustand / Context API
+- **HTTP Client**: Axios
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+### Backend
+
+- **Framework**: FastAPI (Python)
+- **Database**: MySQL (or PostgreSQL)
+- **Infrastructure**: AWS EC2 (Ubuntu 22.04)
+
+### AI Model
+
+- **Body Analysis**: SMPL (Skinned Multi-Person Linear model)
+- **Style Matching**: CLIP (Contrastive Language-Image Pre-training)
+
+---
+
+## 주요 기능
+
+1. **[Mode 1] Mood-based Styling**: 사용자의 전신 사진과 원하는 스타일 키워드(태그)를 결합하여 최적의 코디 이미지 생성 및 추천
+2. **[Mode 2] Closet Mix-match**: 사용자가 소지한 의류 사진을 업로드하면, AI가 체형에 맞춰 기존 옷과의 믹스매치 스타일 제안
+
+---
+
+## 🚀 Quick Start
+
+- **[배포 주소]** - [bodycheck-alpha.vercel.app/](https://bodycheck-alpha.vercel.app/)
