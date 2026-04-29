@@ -1,94 +1,115 @@
-import React, { useState } from "react";
+import React, { useCallback } from "react";
+import { useDropzone } from "react-dropzone";
+import { FaCamera } from "react-icons/fa";
+import useAnalysisStore from "../store/useAnalysisStore";
 
-const Step1Upload = ({ onNext, data, setData }) => {
-  // 로컬 미리보기 상태 (화면에 바로 보여주기 위함)
-  const [preview, setPreview] = useState(
-    data.image ? URL.createObjectURL(data.image) : null,
+export default function Step1Upload() {
+  const { mode, setMode, setUploadedImage, setStep } = useAnalysisStore();
+
+  // 모드별 설명 데이터
+  const modeInfo = {
+    mode1: {
+      title: "Mood Recommendation",
+      desc: "사용자의 전신 사진, 그리고 현재의 날씨, 색상 등 원하는 태그를 조합하여 사용자에게 맞는 최적의 스타일을 추천합니다.",
+    },
+    mode2: {
+      title: "Closet Mix-Match",
+      desc: "나의 옷장에 있는 의상을 기반으로 하여 해당 의상에 가장 알맞는 조합을 제안합니다.",
+    },
+  };
+
+  const onDrop = useCallback(
+    (acceptedFiles) => {
+      const file = acceptedFiles[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = () => {
+          setUploadedImage(reader.result);
+          setStep(2);
+        };
+        reader.readAsDataURL(file);
+      }
+    },
+    [setUploadedImage, setStep],
   );
 
-  const handleImageChange = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      setPreview(URL.createObjectURL(file));
-      // 부모의 데이터 상태 업데이트 (사진 저장)
-      setData((prev) => ({ ...prev, image: file }));
-    }
-  };
-
-  const handleModeChange = (mode) => {
-    // 부모의 데이터 상태 업데이트 (모드 저장)
-    setData((prev) => ({ ...prev, mode: mode }));
-  };
+  const { getRootProps, getInputProps } = useDropzone({
+    onDrop,
+    accept: { "image/*": [] },
+    multiple: false,
+  });
 
   return (
-    <div className="min-h-screen bg-white text-gray-900 font-sans">
-      <main className="grow flex flex-col items-center justify-center p-6 py-20">
-        <label className="relative group cursor-pointer block w-full max-w-2xl mb-8">
-          <div
-            className={`aspect-16/10 border-2 border-dashed rounded-2xl flex flex-col items-center justify-center transition-all 
-            ${preview ? "border-gray-900" : "border-gray-300 hover:border-gray-400 bg-gray-50"}`}
-          >
-            {preview ? (
-              <img
-                src={preview}
-                alt="Upload Preview"
-                className="w-full h-full object-cover rounded-2xl"
-              />
-            ) : (
-              <>
-                <span className="mt-4 text-xl font-semibold text-gray-800">
-                  사진 업로드
-                </span>
-                <span className="absolute bottom-3 right-4 text-xs text-gray-300">
-                  532 X 327
-                </span>
-              </>
-            )}
-          </div>
-          <input
-            type="file"
-            className="hidden"
-            onChange={handleImageChange}
-            accept="image/*"
-          />
-        </label>
-
-        <p className="text-sm text-gray-500 mb-12">
-          Drag & Drop or Click to Begin
+    <div className="space-y-10 font-sans antialiased">
+      {/* 제목 파트 */}
+      <div className="text-left border-l-4 border-black pl-4">
+        <h2 className="text-3xl font-black text-black uppercase tracking-tighter">
+          Analysis Setup
+        </h2>
+        <p className="text-sm text-gray-500 mt-1">
+          모드를 선택하고 사진을 업로드해 주세요.
         </p>
+      </div>
 
-        <div className="w-full max-w-md space-y-8">
-          <div className="bg-gray-100 p-1 rounded-full flex items-center relative h-14">
-            <div
-              className={`absolute top-1 bottom-1 left-1 w-[calc(50%-4px)] bg-white rounded-full shadow-md transition-transform duration-300 ease-out
-              ${data.mode === 2 ? "translate-x-[calc(100%+8px)]" : "translate-x-0"}`}
-            ></div>
-            <button
-              onClick={() => handleModeChange(1)}
-              className={`flex-1 flex items-center justify-center space-x-2.5 z-10 font-semibold text-sm transition-colors ${data.mode === 1 ? "text-gray-950" : "text-gray-500"}`}
-            >
-              <span>모드 1: 무드 추천</span>
-            </button>
-            <button
-              onClick={() => handleModeChange(2)}
-              className={`flex-1 flex items-center justify-center space-x-2.5 z-10 font-semibold text-sm transition-colors ${data.mode === 2 ? "text-gray-950" : "text-gray-500"}`}
-            >
-              <span>모드 2: 내 옷 활용</span>
-            </button>
-          </div>
+      {/* 모드 선택 토글 (슬라이딩 애니메이션 추가) */}
+      <div className="space-y-4">
+        <div className="relative flex w-full border-2 border-black overflow-hidden h-14 bg-white">
+          {/* 슬라이딩 배경 박스 */}
+          <div
+            className={`absolute top-0 left-0 w-1/2 h-full bg-black transition-transform duration-300 ease-in-out ${
+              mode === "mode2" ? "translate-x-full" : "translate-x-0"
+            }`}
+          />
 
           <button
-            onClick={onNext} // 버튼 클릭 시 다음 단계로!
-            disabled={!data.image} // 사진 없으면 클릭 안 됨
-            className={`w-full py-4 rounded-xl font-bold text-lg transition-all shadow-lg 
-            ${data.image ? "bg-gray-950 text-white hover:bg-black" : "bg-gray-200 text-gray-400 cursor-not-allowed"}`}
+            onClick={() => setMode("mode1")}
+            className={`relative z-10 flex-1 py-4 text-xs font-black uppercase tracking-widest transition-colors duration-300 ${
+              mode === "mode1" ? "text-white" : "text-gray-400 hover:text-black"
+            }`}
           >
-            분석 시작하기
+            Mode 01. Mood
+          </button>
+          <button
+            onClick={() => setMode("mode2")}
+            className={`relative z-10 flex-1 py-4 text-xs font-black uppercase tracking-widest transition-colors duration-300 ${
+              mode === "mode2" ? "text-white" : "text-gray-400 hover:text-black"
+            }`}
+          >
+            Mode 02. Closet
           </button>
         </div>
-      </main>
+
+        {/* 모드별 설명 */}
+        <div className="px-1">
+          <p className="text-[11px] font-black text-black uppercase tracking-wider">
+            {modeInfo[mode].title}
+          </p>
+          <p className="text-xs text-gray-500 mt-1 leading-relaxed">
+            {modeInfo[mode].desc}
+          </p>
+        </div>
+      </div>
+
+      {/* 업로드존 */}
+      <div className="flex justify-center w-full">
+        <div
+          {...getRootProps()}
+          className={`relative border-2 flex flex-col items-center justify-center cursor-pointer transition-all duration-300 aspect-6/4 w-full max-w-xl border-black group`}
+        >
+          <input {...getInputProps()} />
+
+          <FaCamera
+            size={36}
+            className="text-gray-400 mb-5 transition-colors duration-300 group-hover:text-black"
+          />
+
+          <div className="text-center px-6">
+            <p className="text-xs font-black text-gray-400 uppercase tracking-widest transition-colors duration-300 group-hover:text-black">
+              Click or Drag photo here
+            </p>
+          </div>
+        </div>
+      </div>
     </div>
   );
-};
-
-export default Step1Upload;
+}
