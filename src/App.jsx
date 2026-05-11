@@ -5,6 +5,7 @@ import AnalysisPage from "./pages/AnalysisPage";
 import LoginPage from "./pages/LoginPage";
 import SignupPage from "./pages/SignupPage";
 import AboutPage from "./pages/AboutPage";
+import ProfilePage from "./pages/ProfilePage";
 import Footer from "./layouts/Footer";
 
 function App() {
@@ -18,6 +19,7 @@ function App() {
           <Route path="/login" element={<LoginPage />} />
           <Route path="/signup" element={<SignupPage />} />
           <Route path="/about" element={<AboutPage />} />
+          <Route path="/profile" element={<ProfilePage />} />
         </Routes>
       </main>
 

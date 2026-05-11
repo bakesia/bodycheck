@@ -14,7 +14,7 @@ export default function Header() {
           HOME
         </Link>
         <Link
-          to="/login"
+          to="/profile"
           className="hover:text-gray-950 hover:font-bold transition-all"
         >
           MY PAGE

@@ -1,9 +1,9 @@
 import React from "react";
 import useAnalysisStore from "../store/useAnalysisStore";
-import Step1Upload from "../components/Step1Upload";
-import Step2Config from "../components/Step2Config";
-import Step3Loading from "../components/Step3Loading";
-import Step4Result from "../components/Step4Result";
+import Step1Upload from "../components/analysis/Step1Upload";
+import Step2Config from "../components/analysis/Step2Config";
+import Step3Loading from "../components/analysis/Step3Loading";
+import Step4Result from "../components/analysis/Step4Result";
 
 export default function AnalysisPage() {
   const { step, setStep } = useAnalysisStore();

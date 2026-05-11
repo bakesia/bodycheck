@@ -1,7 +1,7 @@
 import React, { useCallback } from "react";
 import { useDropzone } from "react-dropzone";
 import { FaCamera } from "react-icons/fa";
-import useAnalysisStore from "../store/useAnalysisStore";
+import useAnalysisStore from "../../store/useAnalysisStore";
 
 export default function Step1Upload() {
   const { mode, setMode, setUploadedImage, setStep } = useAnalysisStore();

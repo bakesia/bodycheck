@@ -1,8 +1,8 @@
 import React, { useState } from "react";
-import useAnalysisStore from "../store/useAnalysisStore";
+import useAnalysisStore from "../../store/useAnalysisStore";
 import { WiDaySunny, WiCloudy, WiRain, WiSnow } from "react-icons/wi";
 import { PiTShirt, PiPants } from "react-icons/pi";
-import COLOR_DATA from "../data/colors.json";
+import COLOR_DATA from "../../data/colors.json";
 
 export default function Step2Config() {
   const { uploadedImage, mode, setStep, setSelectedTags } = useAnalysisStore();
