@@ -1,62 +1,96 @@
+import React, { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import {
   FaLaptopCode,
   FaMagic,
   FaCheckCircle,
   FaArrowRight,
-} from "react-icons/fa"; // react-icons 사용
+} from "react-icons/fa";
 
 export default function AboutPage() {
+  // 스크롤 감지를 위한 Ref와 State
+  const heroRef = useRef(null);
+  const [isVisible, setIsVisible] = useState(false);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        setIsVisible(entry.isIntersecting);
+      },
+      { threshold: 0.5 },
+    );
+
+    // 현재의 ref 값을 변수에 복사해둔다 (중요!)
+    const currentHeroRef = heroRef.current;
+
+    if (currentHeroRef) {
+      observer.observe(currentHeroRef);
+    }
+
+    return () => {
+      // cleanup 시점에 직접 ref.current를 쓰지 않고 복사해둔 변수를 쓴다
+      if (currentHeroRef) {
+        observer.unobserve(currentHeroRef);
+      }
+    };
+  }, []);
+
   return (
-    <div className="bg-white min-h-screen font-sans text-black">
-      {/*서비스 한줄 소개*/}
-      <section className="py-24 px-8 max-w-5xl mx-auto text-center border-b border-gray-200">
-        <span className="text-gray-400 font-bold tracking-[0.2em] text-xs uppercase mb-6 block">
-          Styling recommendations just for you
-        </span>
-        <h1 className="text-5xl md:text-7xl font-black leading-[1.1] tracking-tighter mb-10">
-          YOUR BODY,
-          <br />
-          <span className="text-gray-400">YOUR STYLE.</span>
-        </h1>
-        <p className="text-lg text-gray-600 max-w-2xl mx-auto font-medium leading-relaxed">
-          BODYCHECK.AI는 단순한 패션 추천을 넘어, 사용자의 고유한 체형 데이터를
-          기반으로 인공지능이 가장 최적화된 스타일을 매칭시켜주는 차세대 룩북
-          서비스입니다.
-        </p>
+    <div className="bg-white min-h-screen font-sans text-black antialiased overflow-x-hidden">
+      {/* 서비스 한줄 소개 */}
+      <section
+        ref={heroRef}
+        className="py-32 px-8 max-w-6xl mx-auto text-left border-b-8 border-black"
+      >
+        {/* isVisible일 때만 애니메이션 클래스 주입, 아니면 투명하게 초기화 */}
+        <div className={isVisible ? "animate-slide-left" : "opacity-0"}>
+          <span className="bg-black text-white px-3 py-1 font-black tracking-[0.2em] text-[12px] uppercase mb-8 inline-block">
+            Style recommendations With AI
+          </span>
+          <h1 className="text-6xl md:text-9xl font-black leading-[0.9] tracking-tighter mb-12 uppercase">
+            YOUR BODY, <br />
+            <span className="text-gray-200">OUR LOGIC.</span>
+          </h1>
+          <p className="text-xl md:text-xl text-black max-w-3xl font-bold leading-tight uppercase tracking-tight">
+            BODYCHECK.AI는 단순한 추천을 넘어 사용자의 신체 데이터를 수치화하고,
+            <br />
+            AI 알고리즘을 통해 최적의 퍼스널 핏을 도출하는 기술 중심 룩북
+            서비스입니다.
+          </p>
+        </div>
       </section>
 
-      {/* 기술 스택 설명 (변경 요망) */}
-      <section className="py-24 px-8 border-b border-gray-200">
+      {/* 기술 스택 설명 (호버 시 흑백 반전) */}
+      <section className="py-24 px-8 bg-gray-50/50">
         <div className="max-w-6xl mx-auto">
-          <div className="flex flex-col md:flex-row gap-12">
-            {/* SMPL 설명 */}
-            <div className="flex-1 p-10 border border-gray-200 rounded-3xl">
-              <div className="mb-8 text-black">
-                <FaLaptopCode size={32} />
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-0 border-4 border-black">
+            {/* SMPL 설명 카드 */}
+            <div className="group p-12 bg-white border-b-4 md:border-b-0 md:border-r-4 border-black transition-all duration-500 hover:bg-black cursor-default">
+              <div className="mb-10 text-black group-hover:text-white transition-colors duration-500">
+                <FaLaptopCode size={40} />
               </div>
-              <h3 className="text-2xl font-black mb-6 tracking-tight">
-                SMPL Body Analysis
+              <h3 className="text-3xl font-black mb-6 tracking-tighter uppercase italic text-black group-hover:text-white transition-colors duration-500">
+                01. SMPL Analysis
               </h3>
-              <p className="text-gray-600 leading-relaxed font-medium">
+              <p className="text-gray-600 leading-relaxed font-bold text-sm uppercase group-hover:text-white/80 transition-colors duration-500">
                 전신 사진에서 추출된 관절 데이터와 실루엣을 SMPL(Skinned
-                Multi-Person Linear) 모델로 수치화합니다. 이를 통해 체형별
-                단점을 보완하고 장점을 극대화하는 패션을 사용자에게 제공합니다.
+                Multi-Person Linear) 모델로 정밀 수치화합니다. 골격과 비율을
+                분석하여 체형의 장점을 극대화하는 알고리즘을 가동합니다.
               </p>
             </div>
 
-            {/* CLIP 설명 */}
-            <div className="flex-1 p-10 border border-gray-200 rounded-3xl bg-gray-100/30">
-              <div className="mb-8 text-black">
-                <FaMagic size={32} />
+            {/* CLIP 설명 카드 */}
+            <div className="group p-12 bg-white transition-all duration-500 hover:bg-black cursor-default">
+              <div className="mb-10 text-black group-hover:text-white transition-colors duration-500">
+                <FaMagic size={40} />
               </div>
-              <h3 className="text-2xl font-black mb-6 tracking-tight">
-                CLIP Mood Matching
+              <h3 className="text-3xl font-black mb-6 tracking-tighter uppercase italic text-black group-hover:text-white transition-colors duration-500">
+                02. CLIP Matching
               </h3>
-              <p className="text-gray-600 leading-relaxed font-medium">
-                텍스트와 이미지의 상관관계를 학습한 CLIP 모델을 활용하여,
-                사용자가 입력한 키워드에 가장 부합하는 의류 데이터와 스타일링을
-                정밀하게 매칭합니다.
+              <p className="text-gray-600 leading-relaxed font-bold text-sm uppercase group-hover:text-white/80 transition-colors duration-500">
+                텍스트와 이미지의 상관관계를 학습한 CLIP 모델을 통해 유저의
+                추상적인 키워드를 시각적 스타일링으로 치환합니다. 단순 매칭을
+                넘어 무드에 맞는 최적의 의류 조합을 제안합니다.
               </p>
             </div>
           </div>
@@ -64,46 +98,50 @@ export default function AboutPage() {
       </section>
 
       {/* 분석 모드 안내 */}
-      <section className="py-24 px-8 max-w-5xl mx-auto">
-        <div className="text-center mb-16">
-          <h2 className="text-3xl font-black tracking-tight mb-4">
-            TWO ANALYSIS MODES
+      <section className="py-32 px-8 max-w-6xl mx-auto">
+        <div className="flex flex-col md:flex-row justify-between items-end mb-20 gap-6">
+          <h2 className="text-5xl font-black tracking-tighter uppercase leading-none">
+            Operation <br /> Modes
           </h2>
-          <div className="w-12 h-1 bg-black mx-auto"></div>
+          <div className="h-1 flex-1 bg-black mb-2 hidden md:block mx-8"></div>
+          <p className="text-xs font-black text-gray-400 uppercase tracking-[0.3em]">
+            Select your protocol
+          </p>
         </div>
 
-        <div className="space-y-16">
+        <div className="grid grid-cols-1 gap-12">
           {/* 모드 1 */}
-          <div className="flex items-start gap-8">
-            <span className="text-6xl font-black text-gray-200 leading-none">
-              01
+          <div className="group border-t-2 border-black pt-8 flex flex-col md:flex-row gap-8">
+            <span className="text-8xl font-black text-gray-100 group-hover:text-black transition-colors duration-500">
+              M1
             </span>
-            <div>
-              <h4 className="text-xl font-bold mb-3 flex items-center gap-2">
-                Mood Recommendation{" "}
-                <FaCheckCircle size={18} className="text-gray-200" />
+            <div className="flex-1">
+              <h4 className="text-2xl font-black mb-4 flex items-center gap-4 uppercase italic">
+                Mode1. Mood Recommendation
+                <FaCheckCircle size={20} className="text-black" />
               </h4>
-              <p className="text-gray-600 font-medium">
-                업로드한 전신 사진에 원하는 무드(스타일, 컬러 등)를 선택해
-                보세요. AI가 당신의 체형을 고려한 새로운 룩북을 생성해 줍니다.
+              <p className="text-gray-500 font-bold text-lg leading-snug">
+                데이터베이스의 방대한 룩북 중 유저의 체형과 선택한 태그를
+                기반으로 가장 적합한 스타일을 추출합니다. 당신을 위한 새로운
+                퍼스널 패션이 즉시 생성됩니다.
               </p>
             </div>
           </div>
 
           {/* 모드 2 */}
-          <div className="flex items-start gap-8">
-            <span className="text-6xl font-black text-gray-200 leading-none">
-              02
+          <div className="group border-t-2 border-black pt-8 flex flex-col md:flex-row gap-8">
+            <span className="text-8xl font-black text-gray-100 group-hover:text-black transition-colors duration-500">
+              M2
             </span>
-            <div>
-              <h4 className="text-xl font-bold mb-3 flex items-center gap-2">
-                Closet Mix-Match{" "}
-                <FaCheckCircle size={18} className="text-gray-200" />
+            <div className="flex-1">
+              <h4 className="text-2xl font-black mb-4 flex items-center gap-4 uppercase italic">
+                Mode2. Closet Mix-Match
+                <FaCheckCircle size={20} className="text-black" />
               </h4>
-              <p className="text-gray-600 font-medium">
-                자신이 소유한 의류 사진을 업로드하면, AI가 당신의 신체 사이즈와
-                비율에 맞춰 기존 옷들을 어떻게 매칭해야할지 분석하여 최적의
-                결과를 추천해 줍니다.
+              <p className="text-gray-500 font-bold text-lg leading-snug">
+                보유한 의류 사진을 분석하여 유저의 실제 신체에 가장 최적화된
+                조합을 계산합니다. 옷장 속 아이템들의 잠재력을 기술적으로
+                끌어냅니다.
               </p>
             </div>
           </div>
@@ -111,18 +149,45 @@ export default function AboutPage() {
       </section>
 
       {/* 분석 시작 버튼 */}
-      <section className="py-20 bg-gray-950 text-white text-center">
-        <h2 className="text-3xl font-black mb-8 tracking-tighter">
-          준비되셨나요? 당신의 스타일을 체크하세요.
-        </h2>
-        <Link
-          to="/"
-          className="inline-flex items-center gap-3 bg-white text-black px-10 py-5 rounded-full font-bold text-lg hover:bg-gray-200 transition-all group"
-        >
-          START ANALYSIS
-          <FaArrowRight className="group-hover:translate-x-1 transition-transform" />
-        </Link>
+      <section className="bg-black text-white py-32 px-8 text-center">
+        <div className="max-w-4xl mx-auto">
+          <h2 className="text-4xl md:text-6xl font-black mb-12 tracking-tighter uppercase italic">
+            Ready to <br /> Check your body?
+          </h2>
+          <Link
+            to="/"
+            className="inline-flex items-center gap-6 bg-white text-black px-12 py-6 border-4 border-white hover:bg-black hover:text-white transition-all duration-300 group"
+          >
+            <span className="text-2xl font-black uppercase tracking-widest">
+              분석하러 가기
+            </span>
+            <FaArrowRight
+              size={24}
+              className="group-hover:translate-x-2 transition-transform"
+            />
+          </Link>
+          <p className="mt-12 text-[10px] font-bold text-gray-500 uppercase tracking-[0.5em]">
+            Authorized Access Only — © 2026 Yoo Byung-ho
+          </p>
+        </div>
       </section>
+
+      {/* 커스텀 애니메이션 정의 */}
+      <style>{`
+        @keyframes slide-left {
+          from {
+            opacity: 0;
+            transform: translateX(-100px);
+          }
+          to {
+            opacity: 1;
+            transform: translateX(0);
+          }
+        }
+        .animate-slide-left {
+          animation: slide-left 1.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+      `}</style>
     </div>
   );
 }

@@ -1,5 +1,5 @@
 import "./App.css";
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { createBrowserRouter, RouterProvider, Outlet } from "react-router-dom";
 import Header from "./layouts/Header";
 import AnalysisPage from "./pages/AnalysisPage";
 import LoginPage from "./pages/LoginPage";
@@ -9,25 +9,39 @@ import ProfilePage from "./pages/ProfilePage";
 import AdminPage from "./pages/AdminPage";
 import Footer from "./layouts/Footer";
 
-function App() {
+// 1. 모든 페이지에 공통으로 들어갈 레이아웃 컴포넌트
+function Layout() {
   return (
-    <Router>
+    <>
       <Header />
-
       <main className="min-h-[calc(100vh-68px)]">
-        <Routes>
-          <Route path="/" element={<AnalysisPage />} />
-          <Route path="/login" element={<LoginPage />} />
-          <Route path="/signup" element={<SignupPage />} />
-          <Route path="/about" element={<AboutPage />} />
-          <Route path="/profile" element={<ProfilePage />} />
-          <Route path="/admin" element={<AdminPage />} />
-        </Routes>
+        {/* Outlet이 Routes 역할을 대신해서 각 페이지를 여기에 뿌려줘 */}
+        <Outlet />
       </main>
-
       <Footer />
-    </Router>
+    </>
   );
+}
+
+// 2. 라우터 설정 (Data Router 방식)
+const router = createBrowserRouter([
+  {
+    path: "/",
+    element: <Layout />, // 전체 레이아웃을 감싸고
+    children: [
+      { path: "/", element: <AnalysisPage /> },
+      { path: "/login", element: <LoginPage /> },
+      { path: "/signup", element: <SignupPage /> },
+      { path: "/about", element: <AboutPage /> },
+      { path: "/profile", element: <ProfilePage /> },
+      { path: "/admin", element: <AdminPage /> },
+    ],
+  },
+]);
+
+function App() {
+  // 3. RouterProvider로 라우터 주입
+  return <RouterProvider router={router} />;
 }
 
 export default App;
