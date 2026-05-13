@@ -36,10 +36,10 @@ export default function HistoryLog() {
   return (
     <div className="animate-in fade-in slide-in-from-bottom-2 duration-500 w-full">
       {/* 테이블 헤더*/}
-      <div className="grid grid-cols-12 border-b-2 border-black py-4 px-2 text-[15px] font-black uppercase tracking-widest text-black">
-        <div className="col-span-2">Date</div>
-        <div className="col-span-3">Analysis Mode</div>
-        <div className="col-span-6">Applied Tags</div>
+      <div className="grid grid-cols-12 border-b-2 border-black py-4 px-2 text-[15px] font-black tracking-widest text-black">
+        <div className="col-span-2">날짜</div>
+        <div className="col-span-3">모드 구분</div>
+        <div className="col-span-6">선택한 태그</div>
         <div className="col-span-1 text-right">Detail</div>
       </div>
 

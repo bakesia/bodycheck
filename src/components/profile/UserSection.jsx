@@ -71,8 +71,8 @@ export default function UserSection() {
       {/* 2. 메인 정보 구역 */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-12 pt-4">
         <div className="space-y-6">
-          <h4 className="text-sm font-black uppercase tracking-[0.2em] border-b-2 border-black pb-2">
-            Account Info
+          <h4 className="text-sm font-black border-b-2 border-black pb-2">
+            계정 정보
           </h4>
           <div className="space-y-4">
             <div className="flex items-center gap-4 text-base font-bold">
@@ -97,8 +97,8 @@ export default function UserSection() {
         </div>
 
         <div className="space-y-6">
-          <h4 className="text-sm font-black uppercase tracking-[0.2em] border-b-2 border-black pb-2">
-            Activity Stats
+          <h4 className="text-sm font-black  border-b-2 border-black pb-2">
+            활동 이력
           </h4>
           <div className="flex items-center gap-4 text-base font-bold">
             <FaChartLine className="text-gray-400" />
@@ -116,9 +116,9 @@ export default function UserSection() {
       <div className="pt-12 border-t-2 border-black">
         <button
           onClick={() => setIsEditModalOpen(true)}
-          className="w-full md:w-fit px-12 py-4 border-2 border-black text-sm font-black uppercase tracking-[0.2em] bg-white text-black hover:bg-black hover:text-white transition-all"
+          className="w-full md:w-fit px-12 py-4 border-2 border-black text-sm font-black bg-white text-black hover:bg-black hover:text-white transition-all"
         >
-          Edit Profile
+          프로필 수정
         </button>
       </div>
 

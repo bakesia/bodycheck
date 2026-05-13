@@ -1,4 +1,5 @@
 import React from "react";
+import { FaUser, FaHistory } from "react-icons/fa";
 
 export default function ProfileSidebar({ activeTab, setActiveTab }) {
   const handleLogout = () => {
@@ -8,43 +9,46 @@ export default function ProfileSidebar({ activeTab, setActiveTab }) {
     }
   };
 
-  const menus = [
-    { id: "profile", label: "My Profile" },
-    { id: "history", label: "Analysis History" },
+  const menuItems = [
+    { id: "profile", label: "내 프로필", icon: <FaUser /> },
+    { id: "history", label: "내 분석 이력", icon: <FaHistory /> },
   ];
 
   return (
-    <aside className="w-72 border-r-2 border-black flex flex-col justify-between py-12 h-screen sticky top-0 bg-white shrink-0">
-      {/* 타이틀과 메인 메뉴 */}
-      <div className="space-y-12">
-        <div className="px-8">
-          <h1 className="text-2xl font-black uppercase tracking-tighter border-b-4 border-black pb-2 inline-block">
-            Dashboard
-          </h1>
-        </div>
-
-        <nav className="flex flex-col space-y-1 px-4">
-          {menus.map((menu) => (
-            <button
-              key={menu.id}
-              onClick={() => setActiveTab(menu.id)}
-              className={`text-left px-6 py-5 text-sm font-black uppercase tracking-[0.2em] transition-all ${
-                activeTab === menu.id
-                  ? "bg-black text-white"
-                  : "bg-white text-gray-400 hover:text-black hover:bg-gray-50"
-              }`}
-            >
-              {menu.label}
-            </button>
-          ))}
-        </nav>
+    <aside className="w-full md:w-80 bg-white p-8 flex flex-col border-r-2 border-black h-[calc(100vh-68px)] sticky top-[68px]">
+      {/* 상단 타이틀 영역 */}
+      <div className="mb-12">
+        <h2 className="text-3xl font-black tracking-tighter uppercase border-b-4 border-black pb-3">
+          대시보드
+        </h2>
+        <p className="text-[10px] font-bold text-gray-400 mt-2 tracking-[0.2em] uppercase">
+          User Profile Page
+        </p>
       </div>
 
-      {/* 로그아웃 버튼 */}
-      <div className="px-4">
+      {/* 네비게이션 메뉴 */}
+      <nav className="space-y-2 flex-1">
+        {menuItems.map((item) => (
+          <button
+            key={item.id}
+            onClick={() => setActiveTab(item.id)}
+            className={`w-full flex items-center gap-4 px-6 py-4 text-sm font-black uppercase tracking-widest transition-all duration-300 border-2 ${
+              activeTab === item.id
+                ? "bg-black text-white border-black"
+                : "bg-white text-gray-400 border-transparent hover:border-gray-100 hover:text-black"
+            }`}
+          >
+            {item.icon}
+            {item.label}
+          </button>
+        ))}
+      </nav>
+
+      {/* 하단 로그아웃 영역 */}
+      <div className="pt-8 border-t border-gray-400">
         <button
           onClick={handleLogout}
-          className="w-full text-left px-6 py-5 text-sm font-black uppercase tracking-[0.2em] text-gray-400 hover:text-white hover:bg-black transition-all"
+          className="w-full flex items-center gap-4 px-6 py-4 text-sm font-black uppercase tracking-widest text-black hover:text-white hover:bg-black transition-all border-2 border-transparent"
         >
           Logout
         </button>

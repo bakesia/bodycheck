@@ -9,15 +9,15 @@ export default function Footer() {
         </div>
 
         <nav className="flex space-x-10 text-[10px] font-black text-gray-400 tracking-tighter">
-          <a href="#" className="hover:text-black transition-colors uppercase">
+          <span className="text-black transition-colors uppercase">
             Privacy Policy
-          </a>
-          <a href="#" className="hover:text-black transition-colors uppercase">
+          </span>
+          <span className="text-black transition-colors uppercase">
             Terms of Service
-          </a>
-          <a href="#" className="hover:text-black transition-colors uppercase">
+          </span>
+          <span className="text-black transition-colors uppercase">
             Contact
-          </a>
+          </span>
         </nav>
       </div>
     </footer>
