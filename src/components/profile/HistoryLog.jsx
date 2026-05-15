@@ -1,129 +1,140 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { FaChevronDown } from "react-icons/fa";
 
 export default function HistoryLog() {
-  // 현재 어떤 로그가 열려있는지 관리 (id 저장)
+  const [history, setHistory] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
   const [expandedId, setExpandedId] = useState(null);
 
-  const dummyLogs = [
-    {
-      id: "anls_001",
-      date: "2026.05.12",
-      mode: "mode1",
-      modeName: "Mode 01. Mood",
-      tags: ["Sunny", "Navy", "Street"],
-    },
-    {
-      id: "anls_002",
-      date: "2026.05.10",
-      mode: "mode2",
-      modeName: "Mode 02. Closet",
-      tags: ["Cloudy", "Top", "Office"],
-    },
-    {
-      id: "anls_003",
-      date: "2026.05.08",
-      mode: "mode1",
-      modeName: "Mode 01. Mood",
-      tags: ["Rainy", "Black", "Chic"],
-    },
-  ];
+  // 데이터 가져오기 시뮬레이션
+  const fetchHistory = async () => {
+    setIsLoading(true);
+    try {
+      // 내부 데이터는 백엔드 형식(English) 유지
+      const dummyData = [
+        {
+          id: "anls_001",
+          date: "2026.05.12",
+          modeName: "Mode 01. Mood",
+          tags: ["Sunny", "Navy", "Street"],
+          summary:
+            "Based on the user's physical data, we analyzed the optimal style combination for the selected tags.",
+        },
+        {
+          id: "anls_002",
+          date: "2026.05.10",
+          modeName: "Mode 02. Closet",
+          tags: ["Cloudy", "Top", "Office"],
+          summary:
+            "Matched the selected clothing items with the user's body type to derive the best business casual look.",
+        },
+      ];
+      setHistory(dummyData);
+    } catch (error) {
+      console.error("Data Load Failed:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchHistory();
+  }, []);
 
   const toggleExpand = (id) => {
     setExpandedId(expandedId === id ? null : id);
   };
 
   return (
-    <div className="animate-in fade-in slide-in-from-bottom-2 duration-500 w-full">
-      {/* 테이블 헤더*/}
-      <div className="grid grid-cols-12 border-b-2 border-black py-4 px-2 text-[15px] font-black tracking-widest text-black">
-        <div className="col-span-2">날짜</div>
+    <div className="animate-in fade-in slide-in-from-bottom-2 duration-500 w-full mb-20 text-left">
+      {/* 테이블 헤더 - UI 명칭은 한글 */}
+      <div className="grid grid-cols-12 border-b-4 border-black py-5 px-4 text-[15px] font-black text-black bg-gray-50">
+        <div className="col-span-2">일시</div>
         <div className="col-span-3">모드 구분</div>
-        <div className="col-span-6">선택한 태그</div>
-        <div className="col-span-1 text-right">Detail</div>
+        <div className="col-span-6 text-center">선택한 태그</div>
+        <div className="col-span-1 text-right">상세</div>
       </div>
 
       {/* 로그 리스트 */}
       <div className="flex flex-col">
-        {dummyLogs.map((log) => (
-          <div key={log.id} className="border-b border-gray-100">
-            {/* 메인 행 (클릭 시 열림) */}
+        {history.map((log) => (
+          <div
+            key={log.id}
+            className="border-b-2 border-gray-100 last:border-b-4 last:border-black"
+          >
+            {/* 메인 행 */}
             <div
               onClick={() => toggleExpand(log.id)}
-              className="grid grid-cols-12 py-6 px-2 items-center cursor-pointer hover:bg-gray-50 transition-colors group"
+              className={`grid grid-cols-12 py-7 px-4 items-center cursor-pointer transition-all ${
+                expandedId === log.id
+                  ? "bg-black text-white"
+                  : "hover:bg-gray-50 text-black"
+              }`}
             >
-              <div className="col-span-2 text-[11px] font-bold text-gray-400 tracking-tighter">
+              <div className="col-span-2 text-xs font-bold opacity-60 font-mono">
                 {log.date}
               </div>
-              <div className="col-span-3 text-xs font-black uppercase tracking-tight text-black">
+              <div className="col-span-3 text-sm font-black">
                 {log.modeName}
               </div>
-              <div className="col-span-6 flex flex-wrap gap-2">
-                {log.tags.map((tag, index) => (
+              <div className="col-span-6 flex flex-wrap gap-2 justify-center">
+                {log.tags.map((tag, idx) => (
                   <span
-                    key={index}
-                    className="text-[9px] border border-black px-2 py-0.5 text-black font-black uppercase tracking-tighter"
+                    key={idx}
+                    className={`text-[10px] border px-2 py-0.5 font-black uppercase tracking-tighter ${
+                      expandedId === log.id
+                        ? "border-white text-white"
+                        : "border-black text-black"
+                    }`}
                   >
-                    {tag}
+                    #{tag}
                   </span>
                 ))}
               </div>
               <div className="col-span-1 text-right flex justify-end">
-                {/* 쐐기 아이콘: 열릴 때 180도 회전 애니메이션 */}
                 <FaChevronDown
-                  size={14}
-                  className={`transition-transform duration-300 ${
+                  className={`transition-transform duration-500 ${
                     expandedId === log.id ? "rotate-180" : ""
                   }`}
                 />
               </div>
             </div>
 
-            {/* 슬라이드 열리는 상세 영역 */}
-            <div
-              className={`overflow-hidden transition-all duration-300 ease-in-out bg-gray-50 ${
-                expandedId === log.id
-                  ? "max-h-125 border-t border-gray-200"
-                  : "max-h-0"
-              }`}
-            >
-              <div className="p-8 flex gap-10">
-                {/* 결과 이미지 플레이스홀더 (네모 박스) */}
-                <div className="w-64 aspect-3/4 bg-gray-200 border-2 border-black flex items-center justify-center relative">
+            {/* 상세 영역 */}
+            {expandedId === log.id && (
+              <div className="p-10 flex flex-col md:flex-row gap-12 bg-white border-b-2 border-black animate-in slide-in-from-top-2 duration-300">
+                {/* 결과 사진 박스 */}
+                <div className="w-full md:w-64 aspect-3/4 bg-gray-100 border-4 border-black flex items-center justify-center">
                   <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">
                     Result Image
                   </span>
                 </div>
 
-                {/* 결과 텍스트 요약 */}
-                <div className="flex-1 space-y-4 pt-4">
-                  <h4 className="text-xs font-black uppercase tracking-widest border-b border-black pb-2">
-                    Analysis Summary
+                {/* 분석 레포트 내역 */}
+                <div className="flex-1 space-y-6">
+                  <h4 className="text-xl font-black border-b-4 border-black pb-2 inline-block">
+                    분석 레포트
                   </h4>
-                  <div className="space-y-2">
-                    <p className="text-[11px] text-gray-500 leading-relaxed font-medium">
-                      해당 분석은 AI를 통해 사용자의 신체 3D 모델을 분석하여
-                      최적의 매칭을 검색하였습니다. <br />
-                      해당 결과는 선택하신{" "}
-                      <span className="text-base text-black">
-                        #{log.tags.join(" #")}
-                      </span>{" "}
-                      태그와 가장 알맞은 결과입니다.
-                    </p>
+                  <div className="space-y-4">
+                    <div className="bg-gray-50 p-6 border-l-8 border-black font-bold text-sm text-gray-700 leading-relaxed">
+                      {log.summary}
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
+            )}
           </div>
         ))}
       </div>
 
-      {/* 데이터 없음 처리 */}
-      {dummyLogs.length === 0 && (
-        <div className="py-20 text-center border-2 border-dashed border-gray-100 mt-4">
-          <p className="text-xs font-black text-gray-300 uppercase tracking-widest">
-            No Analysis History Found
-          </p>
+      {isLoading && (
+        <div className="py-20 text-center font-black animate-pulse">
+          로그 로딩 중...
+        </div>
+      )}
+      {!isLoading && history.length === 0 && (
+        <div className="py-20 text-center border-4 border-dashed border-gray-100 mt-8 font-black text-gray-300 uppercase">
+          히스토리가 비어있습니다.
         </div>
       )}
     </div>

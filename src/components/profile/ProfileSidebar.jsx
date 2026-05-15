@@ -15,7 +15,7 @@ export default function ProfileSidebar({ activeTab, setActiveTab }) {
   ];
 
   return (
-    <aside className="w-full md:w-80 bg-white p-8 flex flex-col border-r-2 border-black h-[calc(100vh-68px)] sticky top-[68px]">
+    <aside className="w-full md:w-80 bg-white p-8 flex flex-col border-r-2 border-black h-[calc(100vh-68px)] sticky top-17">
       {/* 상단 타이틀 영역 */}
       <div className="mb-12">
         <h2 className="text-3xl font-black tracking-tighter uppercase border-b-4 border-black pb-3">
