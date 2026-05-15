@@ -3,11 +3,11 @@ import { create } from "zustand";
 const useUserStore = create((set) => ({
   user: {
     id: "",
-    name: "",
-    email: "",
-    gender: "",
-    height: "",
-    weight: "",
+    name: "tuser",
+    email: "test@test.com",
+    gender: "male",
+    height: "170",
+    weight: "170",
     role: "user",
   },
   accessToken: "", // 토큰 필드 추가

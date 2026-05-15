@@ -7,28 +7,29 @@ import Step3Loading from "../components/analysis/Step3Loading";
 import Step4Result from "../components/analysis/Step4Result";
 
 export default function AnalysisPage() {
-  const { step, setStep, uploadedImage, reset } = useAnalysisStore();
+  const { step, setStep, images, reset } = useAnalysisStore();
 
-  // 1. 내부 이동 차단 인자
+  // 1. 내부 이동 차단 (이미지가 하나라도 업로드되었거나 스텝이 진행된 경우)
+  const isDataExist = step > 1 || images.user || images.item;
+
   const blocker = useBlocker(
     ({ currentLocation, nextLocation }) =>
-      (step > 1 || uploadedImage) &&
-      currentLocation.pathname !== nextLocation.pathname,
+      isDataExist && currentLocation.pathname !== nextLocation.pathname,
   );
 
-  // 2. 브라우저 액션 차단 새로고침, 탭 닫기 대응
+  // 2. 브라우저 액션 차단 (새로고침, 탭 닫기)
   useEffect(() => {
     const handleBeforeUnload = (e) => {
-      if (step > 1 || uploadedImage) {
+      if (isDataExist) {
         e.preventDefault();
         e.returnValue = "";
       }
     };
     window.addEventListener("beforeunload", handleBeforeUnload);
     return () => window.removeEventListener("beforeunload", handleBeforeUnload);
-  }, [step, uploadedImage]);
+  }, [isDataExist]);
 
-  // 3. 초기화 로직 페이지를 완전히 '떠날 때'만 리셋
+  // 3. 페이지 이탈 시 스토어 리셋
   useEffect(() => {
     return () => {
       reset();
@@ -36,7 +37,7 @@ export default function AnalysisPage() {
   }, [reset]);
 
   return (
-    <div className="min-h-[calc(100vh-68px)] bg-white py-16 px-6 font-sans antialiased">
+    <div className="min-h-[calc(100vh-68px)] bg-white py-16 px-6 font-sans antialiased text-left">
       <div className="max-w-4xl mx-auto">
         {/* 상단 스텝 인디케이터 */}
         <div className="flex justify-center items-center mb-20">
@@ -78,8 +79,8 @@ export default function AnalysisPage() {
         <div className="mt-24 flex justify-between items-center border-t-2 border-black pt-10">
           <button
             onClick={() => setStep(Math.max(1, step - 1))}
-            disabled={step === 3}
-            className="px-8 py-3 border-2 border-black text-[11px] font-black uppercase tracking-widest hover:bg-black hover:text-white transition-all disabled:opacity-30 disabled:cursor-not-allowed"
+            disabled={step === 3 || step === 1}
+            className="px-8 py-3 border-2 border-black text-[11px] font-black uppercase tracking-widest hover:bg-black hover:text-white transition-all disabled:opacity-10 disabled:cursor-not-allowed"
           >
             Prev
           </button>
@@ -93,7 +94,7 @@ export default function AnalysisPage() {
 
           <button
             onClick={() => setStep(Math.min(4, step + 1))}
-            disabled={step === 3 || (step === 1 && !uploadedImage)}
+            disabled={step === 3 || (step === 1 && !images.user)}
             className="px-8 py-3 border-2 border-black bg-black text-white text-[11px] font-black uppercase tracking-widest hover:bg-white hover:text-black transition-all disabled:opacity-30 disabled:cursor-not-allowed"
           >
             Next
@@ -101,7 +102,7 @@ export default function AnalysisPage() {
         </div>
       </div>
 
-      {/* 내부 이동 차단 확인 커스텀 모달 */}
+      {/* 내부 이동 차단 커스텀 모달 (그림자 제거) */}
       {blocker.state === "blocked" && (
         <div className="fixed inset-0 z-100 flex items-center justify-center px-6">
           <div className="absolute inset-0 bg-black/80 backdrop-blur-sm" />
@@ -110,9 +111,9 @@ export default function AnalysisPage() {
               <h2 className="text-2xl font-black uppercase tracking-tighter">
                 Warning
               </h2>
-              <p className="text-sm font-bold text-black  leading-relaxed">
-                지금 페이지를 나가면 <br />
-                진행 중인 분석 데이터가 모두 초기화됩니다. <br />
+              <p className="text-sm font-bold text-black leading-relaxed">
+                지금 페이지를 나가면 진행 중인 분석 데이터가 모두 초기화됩니다.{" "}
+                <br />
                 정말 이동하시겠습니까?
               </p>
               <div className="grid grid-cols-2 gap-4 pt-4">
