@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { useSignup } from "../hooks/useSignup";
+import { useSignup } from "../hooks/useSignUp";
 import {
   FaUser,
   FaLock,
