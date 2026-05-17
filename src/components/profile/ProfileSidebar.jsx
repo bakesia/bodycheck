@@ -1,11 +1,17 @@
 import React from "react";
+import { useNavigate } from "react-router-dom";
 import { FaUser, FaHistory } from "react-icons/fa";
+import useUserStore from "../../store/useUserStore";
 
 export default function ProfileSidebar({ activeTab, setActiveTab }) {
+  const navigate = useNavigate();
+  const { logout } = useUserStore();
+
   const handleLogout = () => {
     if (window.confirm("로그아웃 하시겠습니까?")) {
-      // 로그아웃 로직 (예: 로컬스토리지 삭제 등)
-      window.location.href = "/";
+      logout(); // 메모리 + 로컬스토리지 싹 비우기
+      alert("로그아웃 되었습니다.");
+      navigate("/"); // 안전하게 랜딩 페이지로 추출
     }
   };
 
@@ -16,7 +22,6 @@ export default function ProfileSidebar({ activeTab, setActiveTab }) {
 
   return (
     <aside className="w-full md:w-80 bg-white p-8 flex flex-col border-r-2 border-black h-[calc(100vh-68px)] sticky top-17">
-      {/* 상단 타이틀 영역 */}
       <div className="mb-12">
         <h2 className="text-3xl font-black tracking-tighter uppercase border-b-4 border-black pb-3">
           대시보드
@@ -26,7 +31,6 @@ export default function ProfileSidebar({ activeTab, setActiveTab }) {
         </p>
       </div>
 
-      {/* 네비게이션 메뉴 */}
       <nav className="space-y-2 flex-1">
         {menuItems.map((item) => (
           <button
@@ -38,13 +42,11 @@ export default function ProfileSidebar({ activeTab, setActiveTab }) {
                 : "bg-white text-gray-400 border-transparent hover:border-gray-100 hover:text-black"
             }`}
           >
-            {item.icon}
-            {item.label}
+            {item.icon} {item.label}
           </button>
         ))}
       </nav>
 
-      {/* 하단 로그아웃 영역 */}
       <div className="pt-8 border-t border-gray-400">
         <button
           onClick={handleLogout}

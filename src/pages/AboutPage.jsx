@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
-import { Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
+import useUserStore from "../store/useUserStore";
 import {
   FaLaptopCode,
   FaMagic,
@@ -8,9 +9,11 @@ import {
 } from "react-icons/fa";
 
 export default function AboutPage() {
+  const navigate = useNavigate();
   // 스크롤 감지를 위한 Ref와 State
   const heroRef = useRef(null);
   const [isVisible, setIsVisible] = useState(false);
+  const { isLoggedIn } = useUserStore();
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -34,6 +37,22 @@ export default function AboutPage() {
       }
     };
   }, []);
+
+  // 분석하러 가기 버튼 클릭 핸들러
+  const handleAnalysisClick = (e) => {
+    e.preventDefault();
+
+    if (isLoggedIn) {
+      // 로그인 상태
+      navigate("/analysis");
+    } else {
+      // 비로그인 상태
+      alert(
+        `체형 분석 서비스는 로그인이 필요합니다.\n로그인 페이지로 이동합니다.`,
+      );
+      navigate("/login");
+    }
+  };
 
   return (
     <div className="bg-white min-h-screen font-sans text-black antialiased overflow-x-hidden">
@@ -151,21 +170,21 @@ export default function AboutPage() {
       {/* 분석 시작 버튼 */}
       <section className="bg-black text-white py-32 px-8 text-center">
         <div className="max-w-4xl mx-auto">
-          <h2 className="text-4xl md:text-6xl font-black mb-12 tracking-tighter uppercase italic">
+          <h2 className="text-4xl md:text-6xl font-black mb-12 tracking-tighter uppercase italic leading-tight">
             Ready to <br /> Check your body?
           </h2>
-          <Link
-            to="/analysis"
-            className="inline-flex items-center gap-6 bg-white text-black px-12 py-6 border-4 border-white hover:bg-black hover:text-white transition-all duration-300 group"
+          <button
+            onClick={handleAnalysisClick}
+            className="inline-flex items-center gap-6 bg-white text-black px-12 py-6 border-4 border-white hover:bg-black hover:text-white transition-all duration-300 group cursor-pointer"
           >
             <span className="text-2xl font-black uppercase tracking-widest">
               분석하러 가기
             </span>
             <FaArrowRight
               size={24}
-              className="group-hover:translate-x-2 transition-transform"
+              className="group-hover:translate-x-2 transition-transform duration-300"
             />
-          </Link>
+          </button>
         </div>
       </section>
 

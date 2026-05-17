@@ -1,41 +1,10 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { FaChevronDown } from "react-icons/fa";
+import { useHistory } from "../../hooks/useHistory"; // 👈 이력 훅 장착
 
 export default function HistoryLog() {
-  const [history, setHistory] = useState([]);
-  const [isLoading, setIsLoading] = useState(false);
+  const { history, isLoading, fetchHistory } = useHistory();
   const [expandedId, setExpandedId] = useState(null);
-
-  // 데이터 가져오기 시뮬레이션
-  const fetchHistory = async () => {
-    setIsLoading(true);
-    try {
-      // 내부 데이터는 백엔드 형식(English) 유지
-      const dummyData = [
-        {
-          id: "anls_001",
-          date: "2026.05.12",
-          modeName: "Mode 01. Mood",
-          tags: ["Sunny", "Navy", "Street"],
-          summary:
-            "Based on the user's physical data, we analyzed the optimal style combination for the selected tags.",
-        },
-        {
-          id: "anls_002",
-          date: "2026.05.10",
-          modeName: "Mode 02. Closet",
-          tags: ["Cloudy", "Top", "Office"],
-          summary:
-            "Matched the selected clothing items with the user's body type to derive the best business casual look.",
-        },
-      ];
-      setHistory(dummyData);
-    } catch (error) {
-      console.error("Data Load Failed:", error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
 
   useEffect(() => {
     fetchHistory();
@@ -47,7 +16,6 @@ export default function HistoryLog() {
 
   return (
     <div className="animate-in fade-in slide-in-from-bottom-2 duration-500 w-full mb-20 text-left">
-      {/* 테이블 헤더 - UI 명칭은 한글 */}
       <div className="grid grid-cols-12 border-b-4 border-black py-5 px-4 text-[15px] font-black text-black bg-gray-50">
         <div className="col-span-2">일시</div>
         <div className="col-span-3">모드 구분</div>
@@ -55,14 +23,12 @@ export default function HistoryLog() {
         <div className="col-span-1 text-right">상세</div>
       </div>
 
-      {/* 로그 리스트 */}
       <div className="flex flex-col">
         {history.map((log) => (
           <div
             key={log.id}
             className="border-b-2 border-gray-100 last:border-b-4 last:border-black"
           >
-            {/* 메인 행 */}
             <div
               onClick={() => toggleExpand(log.id)}
               className={`grid grid-cols-12 py-7 px-4 items-center cursor-pointer transition-all ${
@@ -93,24 +59,20 @@ export default function HistoryLog() {
               </div>
               <div className="col-span-1 text-right flex justify-end">
                 <FaChevronDown
-                  className={`transition-transform duration-500 ${
-                    expandedId === log.id ? "rotate-180" : ""
-                  }`}
+                  className={`transition-transform duration-500 ${expandedId === log.id ? "rotate-180" : ""}`}
                 />
               </div>
             </div>
 
-            {/* 상세 영역 */}
             {expandedId === log.id && (
               <div className="p-10 flex flex-col md:flex-row gap-12 bg-white border-b-2 border-black animate-in slide-in-from-top-2 duration-300">
-                {/* 결과 사진 박스 */}
+                {/* 결과 사진 박스 (백엔드 명세에 이미지 경로가 추가된다면 src에 바인딩 가능) */}
                 <div className="w-full md:w-64 aspect-3/4 bg-gray-100 border-4 border-black flex items-center justify-center">
                   <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">
                     Result Image
                   </span>
                 </div>
 
-                {/* 분석 레포트 내역 */}
                 <div className="flex-1 space-y-6">
                   <h4 className="text-xl font-black border-b-4 border-black pb-2 inline-block">
                     분석 레포트
