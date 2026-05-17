@@ -155,7 +155,7 @@ export default function AboutPage() {
             Ready to <br /> Check your body?
           </h2>
           <Link
-            to="/"
+            to="/analysis"
             className="inline-flex items-center gap-6 bg-white text-black px-12 py-6 border-4 border-white hover:bg-black hover:text-white transition-all duration-300 group"
           >
             <span className="text-2xl font-black uppercase tracking-widest">
@@ -166,9 +166,6 @@ export default function AboutPage() {
               className="group-hover:translate-x-2 transition-transform"
             />
           </Link>
-          <p className="mt-12 text-[10px] font-bold text-gray-500 uppercase tracking-[0.5em]">
-            Authorized Access Only — © 2026 Yoo Byung-ho
-          </p>
         </div>
       </section>
 

@@ -1,19 +1,20 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { useLogin } from "../hooks/useLogin";
+import { useFindPw } from "../hooks/useFindPw";
 import { FaUser, FaLock, FaTimes, FaSearch } from "react-icons/fa";
-import useUserStore from "../store/useUserStore";
 
 export default function LoginPage() {
   const navigate = useNavigate();
-  const { login } = useUserStore();
+
+  // 로그인, 비번 찾기 커스텀 훅
+  const { handleLoginSubmit, isLoading } = useLogin();
+  const { handleFindPwSubmit, isSearching, foundPw, resetFoundPw } =
+    useFindPw();
 
   const [showModal, setShowModal] = useState(false);
   const [loginData, setLoginData] = useState({ email: "", password: "" });
-
-  // 비밀번호 찾기 관련 상태
   const [findEmail, setFindEmail] = useState("");
-  const [foundPw, setFoundPw] = useState("");
-  const [isSearching, setIsSearching] = useState(false);
 
   // 입력 핸들러
   const handleInputChange = (e) => {
@@ -21,65 +22,24 @@ export default function LoginPage() {
     setLoginData((prev) => ({ ...prev, [name]: value }));
   };
 
-  // 1. 로그인 처리 함수
+  // 1. 실전 로그인 처리
   const handleLogin = (e) => {
     e.preventDefault();
-
-    // [시뮬레이션] 백엔드 응답 데이터 구조 (명세서 기준)
-    const mockResponse = {
-      accessToken: "eyJhbGciOiJIUzI1Ni...", // 서버에서 준 토큰
-      user: {
-        id: "12345", // 서버에서 준 고유 ID
-        name: "tuser",
-        email: loginData.email,
-        gender: "male",
-        height: 180,
-        weight: 75,
-        role: "user",
-      },
-    };
-
-    // 이제 updateUser 대신 login 함수를 호출해
-    // 이 한 줄로 스토어 저장 + 로컬스토리지 저장이 동시에 끝남
-    login(mockResponse.user, mockResponse.accessToken);
-
-    alert("로그인 성공!");
-    navigate("/");
+    handleLoginSubmit(loginData.email, loginData.password, () => {
+      alert("로그인 성공!");
+      navigate("/analysis");
+    });
   };
 
-  // 2. 비밀번호 찾기 함수 (마스킹 버전)
+  // 2. 실전 비밀번호 찾기 처리
   const handleFindPw = () => {
     if (!findEmail) return alert("가입하신 이메일을 입력해주세요.");
-
-    setIsSearching(true);
-
-    // 서버 통신 시뮬레이션
-    setTimeout(() => {
-      // 서버에서 가져온 실제 비밀번호라고 가정 (예: 6자 혹은 10자 등)
-      const dummyRealPw = "gachon2026";
-      const len = dummyRealPw.length;
-
-      /**
-       * [동적 마스킹 로직]
-       * visible: 앞뒤로 보여줄 글자 수 (길이의 약 1/4, 최소 1자)
-       * maskCount: 중간에 채울 별(*)의 개수 (전체 길이 - 노출 글자들)
-       */
-      const visible = Math.max(1, Math.floor(len / 4));
-      const maskCount = len - visible * 2;
-
-      const masked =
-        dummyRealPw.slice(0, visible) +
-        "*".repeat(maskCount) +
-        dummyRealPw.slice(-visible);
-
-      setFoundPw(masked);
-      setIsSearching(false);
-    }, 1200);
+    handleFindPwSubmit(findEmail);
   };
 
   const closeModal = () => {
     setShowModal(false);
-    setFoundPw("");
+    resetFoundPw();
     setFindEmail("");
   };
 
@@ -128,8 +88,11 @@ export default function LoginPage() {
             />
           </div>
 
-          <button className="w-full py-4 mt-4 bg-black text-white font-black text-base uppercase hover:bg-gray-800 transition-all shadow-[4px_4px_0px_0px_rgba(0,0,0,0.2)] active:translate-x-0.5 active:translate-y-0.5 active:shadow-none">
-            Sign In
+          <button
+            disabled={isLoading}
+            className="w-full py-4 mt-4 bg-black text-white font-black text-base uppercase hover:bg-gray-800 transition-all shadow-[4px_4px_0px_0px_rgba(0,0,0,0.2)] active:translate-x-0.5 active:translate-y-0.5 active:shadow-none disabled:bg-gray-400"
+          >
+            {isLoading ? "Signing In..." : "Sign In"}
           </button>
         </form>
 

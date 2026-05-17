@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { useSignup } from "../hooks/useSignup";
 import {
   FaUser,
   FaLock,
@@ -8,11 +9,10 @@ import {
   FaRulerVertical,
   FaWeightHanging,
 } from "react-icons/fa";
-import useUserStore from "../store/useUserStore";
 
 export default function SignupPage() {
   const navigate = useNavigate();
-  const { updateUser } = useUserStore();
+  const { registerUser, isLoading } = useSignup();
 
   // 단계 관리 (1: 계정 정보, 2: 신체 정보)
   const [step, setStep] = useState(1);
@@ -23,7 +23,7 @@ export default function SignupPage() {
     email: "",
     password: "",
     confirmPassword: "",
-    gender: "male", // 기본값 male
+    gender: "male",
     height: "",
     weight: "",
   });
@@ -46,6 +46,12 @@ export default function SignupPage() {
       alert("모든 계정 정보를 입력해 주세요.");
       return;
     }
+
+    if (formData.password.length < 8) {
+      alert("비밀번호는 최소 8자 이상이어야 합니다.");
+      return;
+    }
+
     if (formData.password !== formData.confirmPassword) {
       alert("비밀번호가 일치하지 않습니다. 다시 확인해 주세요.");
       return;
@@ -53,9 +59,8 @@ export default function SignupPage() {
     setStep(2);
   };
 
-  // 최종 회원가입 완료
+  // 최종 회원가입 핸들러
   const handleSignup = () => {
-    // 2단계 유효성 검사: 신체 정보 필수 입력 확인
     if (!formData.height || !formData.weight) {
       alert("정확한 분석을 위해 신장과 몸무게를 모두 입력해 주세요.");
       return;
@@ -66,20 +71,11 @@ export default function SignupPage() {
       return;
     }
 
-    // [서버 전송 시뮬레이션]
-    console.log("서버로 전송될 최종 데이터:", formData);
-
-    // 현재는 로컬 테스트를 위해 스토어에 저장 시늉만 냄
-    updateUser({
-      name: formData.name,
-      email: formData.email,
-      gender: formData.gender,
-      height: formData.height,
-      weight: formData.weight,
+    // 훅 실행
+    registerUser(formData, () => {
+      alert("회원가입이 완료되었습니다! 로그인 페이지로 이동합니다.");
+      navigate("/login");
     });
-
-    alert("회원가입이 완료되었습니다! 로그인 페이지로 이동합니다.");
-    navigate("/login");
   };
 
   return (
@@ -184,6 +180,7 @@ export default function SignupPage() {
                 {["male", "female"].map((g) => (
                   <button
                     key={g}
+                    type="button"
                     onClick={() => setFormData({ ...formData, gender: g })}
                     className={`flex-1 py-4 text-xs font-black uppercase transition-all ${
                       formData.gender === g
@@ -229,16 +226,19 @@ export default function SignupPage() {
 
             <div className="flex gap-4 pt-4">
               <button
+                type="button"
                 onClick={() => setStep(1)}
                 className="flex-1 py-4 border-2 border-black text-black font-black text-sm uppercase hover:bg-gray-50 transition-all"
               >
                 Back
               </button>
               <button
+                type="button"
+                disabled={isLoading}
                 onClick={handleSignup}
-                className="flex-2 py-4 bg-black text-white font-black text-sm uppercase hover:bg-gray-800 transition-all shadow-[4px_4px_0px_0px_rgba(0,0,0,0.2)]"
+                className="flex-2 py-4 bg-black text-white font-black text-sm uppercase hover:bg-gray-800 transition-all shadow-[4px_4px_0px_0px_rgba(0,0,0,0.2)] disabled:bg-gray-400"
               >
-                Complete
+                {isLoading ? "Signing Up..." : "Complete"}
               </button>
             </div>
           </div>
