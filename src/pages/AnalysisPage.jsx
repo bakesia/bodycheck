@@ -10,7 +10,7 @@ export default function AnalysisPage() {
   const { step, setStep, images, reset } = useAnalysisStore();
 
   // 1. 내부 이동 차단 (이미지가 하나라도 업로드되었거나 스텝이 진행된 경우)
-  const isDataExist = step > 1 || images.user || images.item;
+  const isDataExist = (step > 1 && step < 4) || images.user || images.item;
 
   const blocker = useBlocker(
     ({ currentLocation, nextLocation }) =>

@@ -1,82 +1,20 @@
+// src/components/analysis/Step3Loading.jsx
 import React, { useEffect } from "react";
+import useAnalysis from "../../hooks/useAnalysis";
 import useAnalysisStore from "../../store/useAnalysisStore";
-import useUserStore from "../../store/useUserStore";
-// import axios from "axios";
 
 export default function Step3Loading() {
-  const {
-    setStep,
-    images,
-    mode,
-    selectedTags,
-    customRequest,
-    setAnalysisResult,
-  } = useAnalysisStore();
-  const { user } = useUserStore();
+  const { mode } = useAnalysisStore();
+  const { runAnalysis } = useAnalysis();
 
   useEffect(() => {
-    const startAnalysisProtocol = async () => {
-      try {
-        const formData = new FormData();
-
-        // 1. 공통 데이터 삽입
-        formData.append("userId", user.id);
-        formData.append("gender", user.gender);
-        formData.append("height", user.height);
-        formData.append("weather", selectedTags[0]); // 날씨는 공통 0번 인덱스
-        formData.append("customRequest", customRequest);
-
-        // 2. 모드별 특화 데이터 및 엔드포인트 설정
-        let endpoint = `/api/analysis/${mode}`; // /api/analysis/mode1 또는 /mode2
-
-        if (mode === "mode1") {
-          // 모드 1: 전신사진 + 색상 + 스타일
-          formData.append("userImage", images.user);
-          formData.append("color", selectedTags[1]);
-          formData.append("style", selectedTags[2]);
-        } else {
-          // 모드 2: 전신사진 + 의류사진 + 타겟 + TPO
-          formData.append("userImage", images.user);
-          formData.append("itemImage", images.item);
-          formData.append("target", selectedTags[1]);
-          formData.append("tpo", selectedTags[2]);
-        }
-
-        console.log(`${mode} 가동: ${endpoint}`);
-        console.log("전송 데이터:", Object.fromEntries(formData));
-
-        // 3. 실제 API 호출
-        /*
-        const response = await axios.post(endpoint, formData, {
-          headers: { "Content-Type": "multipart/form-data" }
-        });
-        setAnalysisResult(response.data);
-        */
-
-        // 시뮬레이션용 대기 (3초)
-        await new Promise((resolve) => setTimeout(resolve, 3000));
-
-        // 가짜 결과 데이터 세팅
-        setAnalysisResult({
-          mainImage: images.user, // 실제론 서버에서 준 결과 이미지 URL
-          comment: "분석 결과가 성공적으로 도출되었습니다.",
-        });
-
-        setStep(4);
-      } catch (error) {
-        console.error("❌ 분석 서버 통신 실패:", error);
-        alert("분석 도중 오류가 발생했습니다. 설정 페이지로 돌아갑니다.");
-        setStep(2);
-      }
-    };
-
-    startAnalysisProtocol();
+    runAnalysis();
     // eslint-disable-next-line
   }, []);
 
   return (
     <div className="flex flex-col items-center justify-center min-h-125 space-y-12 font-sans antialiased text-left">
-      {/* 매트릭스 애니메이션 */}
+      {/* 9칸 매트릭스 펄스 애니메이션 구역 */}
       <div className="grid grid-cols-3 gap-3">
         {[...Array(9)].map((_, i) => (
           <div

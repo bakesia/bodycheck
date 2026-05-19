@@ -9,28 +9,22 @@ export default function Step4Result() {
     useAnalysisStore();
   const { user } = useUserStore();
 
-  const results = useMemo(
-    () =>
-      analysisResult?.items || [
-        { name: "Oversized Wool Blazer", accuracy: 98.2 },
-        { name: "Straight Fit Denim", accuracy: 94.5 },
-        { name: "White Basic Tee", accuracy: 91.0 },
-        { name: "Minimal Leather Shoes", accuracy: 88.7 },
-        { name: "Silver Buckle Belt", accuracy: 85.4 },
-      ],
-    [analysisResult],
-  );
+  // 📦 1. 백엔드 AI 응답 데이터에서 의류 추천 리스트(recommendations) 바인딩
+  const results = useMemo(() => {
+    return analysisResult?.recommendations || [];
+  }, [analysisResult]);
 
+  // 📈 2. 매칭된 의상들의 평균 매칭 스코어를 계산하여 퍼센트(%)로 치환
   const totalAccuracy = useMemo(() => {
-    return (
-      analysisResult?.totalAccuracy ||
-      (
-        results.reduce((acc, curr) => acc + curr.accuracy, 0) / results.length
-      ).toFixed(1)
-    );
-  }, [analysisResult, results]);
+    if (!results || results.length === 0) return "0.0";
 
-  // 숫자로 계산 안 하고 Ref로 직접 제약 조건 설정
+    // score가 0~1 사이의 소수로 넘어오므로 다 더한 뒤 개수로 나누고 100을 곱함
+    const sum = results.reduce((acc, curr) => acc + (curr.score || 0), 0);
+    const avg = sum / results.length;
+    return (avg * 100).toFixed(1);
+  }, [results]);
+
+  // 드래그 컴포넌트용 제약조건 Ref 셋업
   const constraintsRef = useRef(null);
 
   return (
@@ -58,10 +52,13 @@ export default function Step4Result() {
               </div>
               <div>
                 <p className="text-xs font-bold text-gray-400 uppercase">
-                  Height / Gender
+                  Height / Build
                 </p>
                 <p className="text-sm font-black mt-2">
-                  {user.height}cm / {user.gender === "male" ? "남성" : "여성"}
+                  {user.height}cm /{" "}
+                  {analysisResult?.body_info?.overall_build === "full"
+                    ? "체격 좋음"
+                    : "보통"}
                 </p>
               </div>
             </div>
@@ -92,7 +89,7 @@ export default function Step4Result() {
         </div>
       </section>
 
-      {/* 2. 중앙: 분석 결과 (Framer Motion - 버그 해결 버전) */}
+      {/* 2. 중앙: 분석 결과 (Framer Motion 가로 플릭 스크롤) */}
       <section className="space-y-8">
         <div className="flex justify-between items-end border-b-4 border-black pb-2">
           <h3 className="text-xl font-black uppercase tracking-tighter">
@@ -113,70 +110,80 @@ export default function Step4Result() {
             dragElastic={0.1}
             className="flex gap-8 w-max px-2"
           >
-            {results.map((item, index) => (
-              <div
-                key={index}
-                className="flex-none w-[320px] md:w-95 flex flex-col border-4 border-black bg-white select-none pointer-events-none"
-              >
-                {/* 이미지 영역 */}
-                <div className="aspect-3/4 bg-gray-50 flex items-center justify-center overflow-hidden border-b-4 border-black">
-                  {item.imageUrl ? (
-                    <img
-                      src={item.imageUrl}
-                      alt={item.name}
-                      className="w-full h-full object-cover"
-                    />
-                  ) : (
-                    <div className="flex flex-col items-center gap-3">
-                      <div className="w-12 h-12 border-2 border-black flex items-center justify-center text-xs font-black">
-                        0{index + 1}
-                      </div>
-                      <div className="text-[10px] font-black text-black/20 uppercase">
-                        No Item Image
-                      </div>
-                    </div>
-                  )}
-                </div>
+            {results.map((item, index) => {
+              // 🧮 0.8103 형태의 스코어를 직관적인 81% 형태의 정수로 포맷팅
+              const itemAccuracy = Math.round((item.score || 0) * 100);
 
-                {/* 정보 영역 */}
-                <div className="p-6 flex flex-col gap-6 flex-1">
-                  <div className="space-y-2">
-                    <div className="flex justify-between items-center">
-                      <p className="text-xs font-black text-gray-400 uppercase tracking-widest">
-                        {index + 1}번째 의상
-                      </p>
-                      <div className="w-3 h-3 bg-black" />
-                    </div>
-                    <p className="text-base font-black text-black uppercase leading-tight h-12 line-clamp-2">
-                      {item.name}
-                    </p>
-                  </div>
-
-                  {/* 정확도 지표 */}
-                  <div className="bg-black p-5 border-4 border-black">
-                    <div className="flex justify-between items-end mb-3">
-                      <span className="text-sm font-black text-white uppercase tracking-tighter">
-                        정확도
-                      </span>
-                      <span className="text-lg font-black text-white leading-none">
-                        {item.accuracy}%
-                      </span>
-                    </div>
-                    <div className="w-full h-2 bg-gray-800 overflow-hidden">
-                      <div
-                        className="h-full bg-white transition-all duration-1000 ease-out"
-                        style={{ width: `${item.accuracy}%` }}
+              return (
+                <div
+                  key={item.id || index}
+                  className="flex-none w-[320px] md:w-95 flex flex-col border-4 border-black bg-white select-none pointer-events-none"
+                >
+                  {/* 의상 이미지 렌더링 구역 */}
+                  <div className="aspect-3/4 bg-gray-50 flex items-center justify-center overflow-hidden border-b-4 border-black">
+                    {item.image_url ? (
+                      <img
+                        src={item.image_url}
+                        alt={item.title}
+                        className="w-full h-full object-cover"
                       />
+                    ) : (
+                      <div className="flex flex-col items-center gap-3">
+                        <div className="w-12 h-12 border-2 border-black flex items-center justify-center text-xs font-black">
+                          0{index + 1}
+                        </div>
+                        <div className="text-[10px] font-black text-black/20 uppercase">
+                          No Item Image
+                        </div>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* 의상 텍스트 상세 정보 구역 */}
+                  <div className="p-6 flex flex-col gap-6 flex-1">
+                    <div className="space-y-2">
+                      <div className="flex justify-between items-center">
+                        <p className="text-xs font-black text-gray-400 uppercase tracking-widest">
+                          {item.category
+                            ? `${item.category}`
+                            : `${index + 1}번째 추천`}
+                        </p>
+                        <div className="w-3 h-3 bg-black" />
+                      </div>
+                      <p className="text-base font-black text-black uppercase leading-tight h-12 line-clamp-2">
+                        {item.title}
+                      </p>
+                      <p className="text-xs font-bold text-gray-400 normal-case line-clamp-2">
+                        {item.description}
+                      </p>
+                    </div>
+
+                    {/* 아이템 개별 적합도 매칭 바 */}
+                    <div className="bg-black p-5 border-4 border-black">
+                      <div className="flex justify-between items-end mb-3">
+                        <span className="text-sm font-black text-white uppercase tracking-tighter">
+                          적합도
+                        </span>
+                        <span className="text-lg font-black text-white leading-none">
+                          {itemAccuracy}%
+                        </span>
+                      </div>
+                      <div className="w-full h-2 bg-gray-800 overflow-hidden">
+                        <div
+                          className="h-full bg-white transition-all duration-1000 ease-out"
+                          style={{ width: `${itemAccuracy}%` }}
+                        />
+                      </div>
                     </div>
                   </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </motion.div>
         </motion.div>
       </section>
 
-      {/* 3. 하단 섹션 및 버튼 */}
+      {/* 3. 하단 섹션 및 매칭 총점 바 */}
       <section className="p-8 border-4 border-black flex flex-col md:flex-row items-center justify-between gap-8 bg-white">
         <div className="space-y-2">
           <h3 className="text-xs font-black uppercase tracking-[0.3em] text-gray-400">
@@ -190,9 +197,10 @@ export default function Step4Result() {
         </div>
         <div className="flex-1 w-full max-w-md space-y-4">
           <p className="text-xs font-bold text-gray-500 leading-relaxed uppercase">
-            AI 분석 결과, {user.name}님의 체형과 선택하신 취향을 기반으로 도출된
-            최적의 코디네이션입니다. 위 리스트는 {totalAccuracy}%의 신뢰도를
-            보장합니다.
+            AI 분석 결과, {user.name}님의 체형 시그널과 선택하신 "
+            {analysisResult?.generated_prompt || "취향 키워드"}" 기반 최적의
+            코디네이션 밸런스입니다. 위 리스트는 {totalAccuracy}%의 종합
+            신뢰도를 보장합니다.
           </p>
           <div className="w-full h-4 border-2 border-black bg-gray-100 overflow-hidden">
             <div
@@ -203,6 +211,7 @@ export default function Step4Result() {
         </div>
       </section>
 
+      {/* 테스트 종료 및 스토어 폭파 버튼 */}
       <div className="pt-10 flex justify-center">
         <button
           onClick={reset}
