@@ -16,3 +16,22 @@ export const requestAnalysisApi = async (mode, formData) => {
   );
   return response.data;
 };
+
+function pickComposedImageUrl(payload) {
+  if (!payload || typeof payload !== "object") return null;
+  return (
+    payload.composed_image_url ||
+    payload.synthesized_image_url ||
+    payload.image_url ||
+    payload.url ||
+    null
+  );
+}
+
+export const requestStyleSyncApi = async (index) => {
+  const response = await axios.post(`${API_BASE_URL}/api/style/sync`, {
+    resultIndex: index,
+  });
+
+  return pickComposedImageUrl(response.data);
+};

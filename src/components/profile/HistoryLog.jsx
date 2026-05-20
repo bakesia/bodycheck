@@ -44,18 +44,29 @@ export default function HistoryLog() {
                 {log.modeName}
               </div>
               <div className="col-span-6 flex flex-wrap gap-2 justify-center">
-                {log.tags.map((tag, idx) => (
-                  <span
-                    key={idx}
-                    className={`text-[10px] border px-2 py-0.5 font-black uppercase tracking-tighter ${
-                      expandedId === log.id
-                        ? "border-white text-white"
-                        : "border-black text-black"
-                    }`}
-                  >
-                    #{tag}
-                  </span>
-                ))}
+                {log.tags.map((tag, idx) => {
+                  // 문자열 내부에 숨어있는 백엔드 찌꺼기 기호들({}, [], '") 싹 다 제거
+                  const cleanTag =
+                    typeof tag === "string"
+                      ? tag.replace(/[{}[\]"']/g, "").trim()
+                      : tag;
+
+                  // 만약 백엔드가 배열이 아니라 통짜 문자열 하나로 줬다면 공백 처리가 안 될 수 있으니 예외 처리
+                  if (!cleanTag) return null;
+
+                  return (
+                    <span
+                      key={idx}
+                      className={`text-[10px] border px-2 py-0.5 font-black uppercase tracking-tighter ${
+                        expandedId === log.id
+                          ? "border-white text-white"
+                          : "border-black text-black"
+                      }`}
+                    >
+                      #{cleanTag}
+                    </span>
+                  );
+                })}
               </div>
               <div className="col-span-1 text-right flex justify-end">
                 <FaChevronDown

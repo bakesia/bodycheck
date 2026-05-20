@@ -9,15 +9,15 @@ import Step4Result from "../components/analysis/Step4Result";
 export default function AnalysisPage() {
   const { step, setStep, images, reset } = useAnalysisStore();
 
-  // 1. 내부 이동 차단 (이미지가 하나라도 업로드되었거나 스텝이 진행된 경우)
-  const isDataExist = (step > 1 && step < 4) || images.user || images.item;
+  // 분석이 "진행 중(1, 2, 3단계)"이면서 + "데이터가 존재할 때"만 이탈을 차단함!
+  const isDataExist = step < 4 && (step > 1 || images.user || images.item);
 
   const blocker = useBlocker(
     ({ currentLocation, nextLocation }) =>
       isDataExist && currentLocation.pathname !== nextLocation.pathname,
   );
 
-  // 2. 브라우저 액션 차단 (새로고침, 탭 닫기)
+  // 브라우저 액션 차단 (새로고침, 탭 닫기)
   useEffect(() => {
     const handleBeforeUnload = (e) => {
       if (isDataExist) {
@@ -29,7 +29,7 @@ export default function AnalysisPage() {
     return () => window.removeEventListener("beforeunload", handleBeforeUnload);
   }, [isDataExist]);
 
-  // 3. 페이지 이탈 시 스토어 리셋
+  // 페이지 이탈 시 스토어 리셋
   useEffect(() => {
     return () => {
       reset();
@@ -102,7 +102,7 @@ export default function AnalysisPage() {
         </div>
       </div>
 
-      {/* 내부 이동 차단 커스텀 모달 (그림자 제거) */}
+      {/* 내부 이동 차단 커스텀 모달 */}
       {blocker.state === "blocked" && (
         <div className="fixed inset-0 z-100 flex items-center justify-center px-6">
           <div className="absolute inset-0 bg-black/80 backdrop-blur-sm" />

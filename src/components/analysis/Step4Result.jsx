@@ -3,22 +3,22 @@ import React, { useRef, useMemo } from "react";
 import { motion } from "framer-motion";
 import useAnalysisStore from "../../store/useAnalysisStore";
 import useUserStore from "../../store/useUserStore";
+import useStyleSync from "../../hooks/useStyleSync";
 
 export default function Step4Result() {
   const { mode, selectedTags, customRequest, analysisResult, reset } =
     useAnalysisStore();
   const { user } = useUserStore();
 
-  // 📦 1. 백엔드 AI 응답 데이터에서 의류 추천 리스트(recommendations) 바인딩
+  const { runStyleSync, syncingIndex, composedUrl, composeError } =
+    useStyleSync();
+
   const results = useMemo(() => {
     return analysisResult?.recommendations || [];
   }, [analysisResult]);
 
-  // 📈 2. 매칭된 의상들의 평균 매칭 스코어를 계산하여 퍼센트(%)로 치환
   const totalAccuracy = useMemo(() => {
     if (!results || results.length === 0) return "0.0";
-
-    // score가 0~1 사이의 소수로 넘어오므로 다 더한 뒤 개수로 나누고 100을 곱함
     const sum = results.reduce((acc, curr) => acc + (curr.score || 0), 0);
     const avg = sum / results.length;
     return (avg * 100).toFixed(1);
@@ -48,14 +48,14 @@ export default function Step4Result() {
                 <p className="text-xs font-bold text-gray-400 uppercase">
                   Name
                 </p>
-                <p className="text-sm font-black mt-2">{user.name}</p>
+                <p className="text-sm font-black mt-2">{user?.name}</p>
               </div>
               <div>
                 <p className="text-xs font-bold text-gray-400 uppercase">
                   Height / Build
                 </p>
                 <p className="text-sm font-black mt-2">
-                  {user.height}cm /{" "}
+                  {user?.height}cm /{" "}
                   {analysisResult?.body_info?.overall_build === "full"
                     ? "체격 좋음"
                     : "보통"}
@@ -89,7 +89,7 @@ export default function Step4Result() {
         </div>
       </section>
 
-      {/* 2. 중앙: 분석 결과 (Framer Motion 가로 플릭 스크롤) */}
+      {/* 2. 중앙: 분석 결과 (가로 드래그 스크롤 카드) */}
       <section className="space-y-8">
         <div className="flex justify-between items-end border-b-4 border-black pb-2">
           <h3 className="text-xl font-black uppercase tracking-tighter">
@@ -111,16 +111,15 @@ export default function Step4Result() {
             className="flex gap-8 w-max px-2"
           >
             {results.map((item, index) => {
-              // 🧮 0.8103 형태의 스코어를 직관적인 81% 형태의 정수로 포맷팅
               const itemAccuracy = Math.round((item.score || 0) * 100);
 
               return (
                 <div
                   key={item.id || index}
-                  className="flex-none w-[320px] md:w-95 flex flex-col border-4 border-black bg-white select-none pointer-events-none"
+                  className="flex-none w-[320px] md:w-95 flex flex-col border-4 border-black bg-white select-none"
                 >
-                  {/* 의상 이미지 렌더링 구역 */}
-                  <div className="aspect-3/4 bg-gray-50 flex items-center justify-center overflow-hidden border-b-4 border-black">
+                  {/* 카드 내부는 pointer-events-none을 걸어 드래그 스크롤 최적화 */}
+                  <div className="pointer-events-none aspect-3/4 bg-gray-50 flex items-center justify-center overflow-hidden border-b-4 border-black">
                     {item.image_url ? (
                       <img
                         src={item.image_url}
@@ -139,8 +138,7 @@ export default function Step4Result() {
                     )}
                   </div>
 
-                  {/* 의상 텍스트 상세 정보 구역 */}
-                  <div className="p-6 flex flex-col gap-6 flex-1">
+                  <div className="pointer-events-none p-6 flex flex-col gap-6 flex-1">
                     <div className="space-y-2">
                       <div className="flex justify-between items-center">
                         <p className="text-xs font-black text-gray-400 uppercase tracking-widest">
@@ -158,7 +156,6 @@ export default function Step4Result() {
                       </p>
                     </div>
 
-                    {/* 아이템 개별 적합도 매칭 바 */}
                     <div className="bg-black p-5 border-4 border-black">
                       <div className="flex justify-between items-end mb-3">
                         <span className="text-sm font-black text-white uppercase tracking-tighter">
@@ -176,6 +173,20 @@ export default function Step4Result() {
                       </div>
                     </div>
                   </div>
+
+                  {/* 버튼 구역만 pointer-events-auto로 복구하여 클릭 활성화 */}
+                  {mode === "mode1" && (
+                    <div className="px-6 pb-6 pointer-events-auto">
+                      <button
+                        type="button"
+                        disabled={syncingIndex !== null}
+                        onClick={() => runStyleSync(item, index)}
+                        className="w-full py-4 bg-white text-black text-xs font-black uppercase tracking-widest border-4 border-black hover:bg-black hover:text-white transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                      >
+                        {syncingIndex === index ? "합성 중…" : "가상 피팅하기"}
+                      </button>
+                    </div>
+                  )}
                 </div>
               );
             })}
@@ -183,7 +194,42 @@ export default function Step4Result() {
         </motion.div>
       </section>
 
-      {/* 3. 하단 섹션 및 매칭 총점 바 */}
+      {/* 가상 피팅 결과 디스플레이 보드 */}
+      {(composedUrl || composeError) && (
+        <section className="animate-in slide-in-from-bottom-10 duration-500 space-y-6">
+          <div className="border-l-8 border-black pl-5">
+            <h2 className="text-4xl font-black text-black uppercase tracking-tighter">
+              사진 합성 결과 보드
+            </h2>
+            <p className="text-sm text-gray-500 mt-2 font-bold uppercase tracking-widest">
+              선택한 의상기반 실시간 가상 피팅 시뮬레이션 결과입니다.
+            </p>
+          </div>
+
+          <div className="border-4 border-black bg-white p-8">
+            {composeError && (
+              <div className="p-4 border-4 border-black bg-red-50 text-red-700 font-bold text-sm">
+                에러 발생: {composeError}
+              </div>
+            )}
+
+            {composedUrl && (
+              <div className="relative max-w-md mx-auto border-4 border-black bg-gray-50 p-4">
+                <img
+                  src={composedUrl}
+                  alt="Virtual Fitting Result"
+                  className="w-full h-auto object-contain border-4 border-black bg-white"
+                />
+                <div className="absolute top-6 right-6 bg-black text-white px-3 py-1.5 text-[9px] font-black uppercase tracking-[0.2em]">
+                  Live Preview
+                </div>
+              </div>
+            )}
+          </div>
+        </section>
+      )}
+
+      {/* 4. 하단 섹션 및 매칭 총점 바 */}
       <section className="p-8 border-4 border-black flex flex-col md:flex-row items-center justify-between gap-8 bg-white">
         <div className="space-y-2">
           <h3 className="text-xs font-black uppercase tracking-[0.3em] text-gray-400">
@@ -197,7 +243,7 @@ export default function Step4Result() {
         </div>
         <div className="flex-1 w-full max-w-md space-y-4">
           <p className="text-xs font-bold text-gray-500 leading-relaxed uppercase">
-            AI 분석 결과, {user.name}님의 체형 시그널과 선택하신 "
+            AI 분석 결과, {user?.name}님의 체형 시그널과 선택하신 "
             {analysisResult?.generated_prompt || "취향 키워드"}" 기반 최적의
             코디네이션 밸런스입니다. 위 리스트는 {totalAccuracy}%의 종합
             신뢰도를 보장합니다.
@@ -211,10 +257,12 @@ export default function Step4Result() {
         </div>
       </section>
 
-      {/* 테스트 종료 및 스토어 폭파 버튼 */}
+      {/* 테스트 종료 및 스토어 초기화 버튼 */}
       <div className="pt-10 flex justify-center">
         <button
-          onClick={reset}
+          onClick={() => {
+            reset;
+          }}
           className="w-full md:w-1/2 py-8 bg-black text-white text-base font-black uppercase tracking-[0.6em] border-4 border-black hover:bg-white hover:text-black transition-all active:translate-x-1 active:translate-y-1"
         >
           Finish Analysis

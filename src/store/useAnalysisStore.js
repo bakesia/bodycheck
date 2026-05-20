@@ -6,8 +6,10 @@ const useAnalysisStore = create((set) => ({
   mode: "mode1",
   selectedTags: [],
   customRequest: "", // 추가 요청 사항 필드
-  isLoading: false,
+  isLoading: false, // 분석 중 로딩 상태
   analysisResult: null,
+  fittedImage: null, // 합성 결과 이미지 URL
+  isSyncLoading: false, // 합성 중 로딩 상태
 
   setStep: (step) => set({ step }),
   setImage: (type, file) =>
@@ -26,6 +28,8 @@ const useAnalysisStore = create((set) => ({
   setCustomRequest: (text) => set({ customRequest: text }), // 추가
   setIsLoading: (loading) => set({ isLoading: loading }),
   setAnalysisResult: (result) => set({ analysisResult: result }),
+  setFittedImage: (url) => set({ fittedImage: url }),
+  setSyncLoading: (status) => set({ isSyncLoading: status }),
 
   reset: () =>
     set({
@@ -34,8 +38,9 @@ const useAnalysisStore = create((set) => ({
       mode: "mode1",
       selectedTags: [],
       customRequest: "",
-      isLoading: false,
       analysisResult: null,
+      fittedImage: null,
+      isSyncLoading: false,
     }),
 }));
 
