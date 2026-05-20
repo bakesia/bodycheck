@@ -10,6 +10,7 @@ export default function useStyleSync() {
     // 백엔드가 아이템 객체 안에 인덱스를 심어뒀으면 쓰고, 없으면 렌더링 순번(0~4)을 사용
     const serverIndex =
       item?.recommendation_index ??
+      item?.recommendation_id ??
       item?.result_index ??
       item?.index ??
       listIndex;
