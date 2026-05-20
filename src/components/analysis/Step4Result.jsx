@@ -6,7 +6,7 @@ import useUserStore from "../../store/useUserStore";
 import useStyleSync from "../../hooks/useStyleSync";
 
 export default function Step4Result() {
-  const { mode, selectedTags, customRequest, analysisResult, reset } =
+  const { mode, selectedTags, customRequest, analysisResult, reset, setStep } =
     useAnalysisStore();
   const { user } = useUserStore();
 
@@ -262,6 +262,7 @@ export default function Step4Result() {
         <button
           onClick={() => {
             reset;
+            setStep(1);
           }}
           className="w-full md:w-1/2 py-8 bg-black text-white text-base font-black uppercase tracking-[0.6em] border-4 border-black hover:bg-white hover:text-black transition-all active:translate-x-1 active:translate-y-1"
         >

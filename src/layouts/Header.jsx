@@ -31,6 +31,15 @@ export default function Header() {
           </Link>
         )}
 
+        {isLoggedIn && (
+          <Link
+            to="/analysis"
+            className="hover:text-gray-950 hover:font-bold transition-all uppercase"
+          >
+            analysis
+          </Link>
+        )}
+
         {/* 비로그인 시에만 출력 (Login) */}
         {!isLoggedIn && (
           <Link
